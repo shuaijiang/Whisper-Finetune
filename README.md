@@ -69,11 +69,10 @@ OpenAI在开源了号称其英文语音辨识能力已达到人类水准的Whisp
 
 1. 原始模型和微调模型字错率对比
 
-|       使用模型       |  指定语言   |                            数据集                             | aishell_test | test_net | test_meeting | HKUST_dev|  模型获取   |  
-|:----------------:|:-------:|:----------------------------------------------------------:|:------------:|:--------:|:------------:|:--------:|
-
+|       使用模型       |  指定语言   |                            数据集                             | aishell_test | test_net | test_meeting | HKUST_dev| 模型获取 |  
+|:----------------:|:-------:|:----------------------------------------------------------:|:-----------:|:--------:|:-----------:|:-------:|:-------:|
 | whisper-large-v2 | Chinese | -- |   0.0    | 0.0  |   0.0  |  0.0  | [huggingface](https://huggingface.co/openai/whisper-large-v2) |
-| Belle-whisper-large-v2-zh | Chinese | [AIShell](https://openslr.magicdatatech.com/resources/33/) |   0.03139    | 0.12201  |   0.15776    | 0.0 | [huggingface]([https://huggingface.co/openai/whisper-large-v2](https://huggingface.co/BELLE-2/Belle-whisper-large-v2-zh)) |
+| Belle-whisper-large-v2-zh | Chinese | [AISHELL-1](https://openslr.magicdatatech.com/resources/33/) [AISHELL-2](https://www.aishelltech.com/aishell_2) [WenetSpeech](https://wenet.org.cn/WenetSpeech/) [HKUST](https://catalog.ldc.upenn.edu/LDC2005S15) |   0.0    | 0.0  |   0.0    | 0.0 | [huggingface](https://huggingface.co/BELLE-2/Belle-whisper-large-v2-zh) |
 
 
 

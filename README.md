@@ -23,13 +23,6 @@ OpenAI在开源了号称其英文语音辨识能力已达到人类水准的Whisp
  - openai/whisper-large
  - openai/whisper-large-v2
 
-**欢迎大家扫码入知识星球（左）或者QQ群（右）讨论，知识星球里面提供项目的模型文件和博主其他相关项目的模型文件，也包括其他一些资源。**
-
-<div align="center">
-  <img src="https://yeyupiaoling.cn/zsxq.png" alt="知识星球" width="400">
-  <img src="https://yeyupiaoling.cn/qq.png" alt="QQ群" width="400">
-</div>
-
 
 **使用环境：**
 
@@ -461,14 +454,6 @@ for chunk in response.iter_lines(decode_unicode=False, delimiter=b"\0"):
 </div>
 
 
-<a name='打赏作者'></a>
-## 打赏作者
-
-<br/>
-<div align="center">
-<p>打赏一块钱支持一下作者</p>
-<img src="https://yeyupiaoling.cn/reward.png" alt="打赏作者" width="400">
-</div>
 
 ## 参考资料
 

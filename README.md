@@ -63,16 +63,22 @@ OpenAI在开源了号称其英文语音辨识能力已达到人类水准的Whisp
 11. `WhisperDesktop`：该目录存放的是Windows桌面应用的程序。
 
 
-<a name='模型测试表'></a>
 
-## 模型测试表
+## Fine-tuning
+|       Model      |  (Re)Sample Rate   |                      Train Datasets         | Fine-tuning (full or peft) | 
+|:----------------:|:-------:|:----------------------------------------------------------:|:-----------:|
+| Belle-whisper-large-v2-zh | 16KHz | [AISHELL-1](https://openslr.magicdatatech.com/resources/33/) [AISHELL-2](https://www.aishelltech.com/aishell_2) [WenetSpeech](https://wenet.org.cn/WenetSpeech/) [HKUST](https://catalog.ldc.upenn.edu/LDC2005S15)  |   full fine-tuning   |    
+| Belle-distil-whisper-large-v2-zh | 16KHz | [AISHELL-1](https://openslr.magicdatatech.com/resources/33/) [AISHELL-2](https://www.aishelltech.com/aishell_2) [WenetSpeech](https://wenet.org.cn/WenetSpeech/) [HKUST](https://catalog.ldc.upenn.edu/LDC2005S15)  |   full fine-tuning    |    
 
-1. 原始模型和微调模型字错率对比
 
-|       使用模型       |  指定语言   |                            数据集                             | aishell_test | test_net | test_meeting | HKUST_dev| 模型获取 |  
-|:----------------:|:-------:|:----------------------------------------------------------:|:-----------:|:--------:|:-----------:|:-------:|:-------:|
-| whisper-large-v2 | Chinese | -- |   0.0    | 0.0  |   0.0  |  0.0  | [huggingface](https://huggingface.co/openai/whisper-large-v2) |
-| Belle-whisper-large-v2-zh | Chinese | [AISHELL-1](https://openslr.magicdatatech.com/resources/33/) [AISHELL-2](https://www.aishelltech.com/aishell_2) [WenetSpeech](https://wenet.org.cn/WenetSpeech/) [HKUST](https://catalog.ldc.upenn.edu/LDC2005S15) |   0.0    | 0.0  |   0.0    | 0.0 | [huggingface](https://huggingface.co/BELLE-2/Belle-whisper-large-v2-zh) |
+<a name='模型效果'></a>
+
+## CER 
+|      Model       |  Language Tag   | aishell_1_test |aishell_2_test| wenetspeech test_net | wenetspeech test_meeting | HKUST_dev| Model Link |
+|:----------------:|:-------:|:-----------:|:-----------:|:--------:|:-----------:|:-------:|:-------:|
+| whisper-large-v2 | Chinese |  0.0    | 0.0  |   0.0  |  0.0  | 0.0 | [HF](https://huggingface.co/openai/whisper-large-v2)|
+| Belle-whisper-large-v2-zh | Chinese |   0.0    | 0.0  |   0.0    | 0.0 | 0.0 |[HF](https://huggingface.co/BELLE-2/Belle-whisper-large-v2-zh) |
+| Belle-distil-whisper-large-v2-zh | Chinese |   0.0    | 0.0  |   0.0    | 0.0 | 0.0 | [HF](https://huggingface.co/BELLE-2/Belle-whisper-large-v2-zh) |
 
 
 

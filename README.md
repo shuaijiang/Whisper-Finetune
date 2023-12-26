@@ -30,7 +30,8 @@ OpenAI在开源了号称其英文语音辨识能力已达到人类水准的Whisp
 
 ## 目录
  - [项目主要程序介绍](#项目主要程序介绍)
- - [模型测试表](#模型测试表)
+ - [模型说明](#模型说明)
+ - [模型效果](#模型效果)
  - [安装环境](#安装环境)
  - [准备数据](#准备数据)
  - [微调模型](#微调模型)
@@ -51,20 +52,21 @@ OpenAI在开源了号称其英文语音辨识能力已达到人类水准的Whisp
 ## 项目主要程序介绍
 
 1. `aishell.py`：制作AIShell训练数据。
-2. `finetune.py`：微调模型。
-3. `merge_lora.py`：合并Whisper和Lora的模型。
-4. `evaluation.py`：评估使用微调后的模型或者Whisper原模型。
-5. `infer_tfs.py`：使用transformers直接调用微调后的模型或者Whisper原模型预测，只适合推理短音频。
-6. `infer_ct2.py`：使用转换为CTranslate2的模型预测，主要参考这个程序用法。
-7. `infer_gui.py`：有GUI界面操作，使用转换为CTranslate2的模型预测。
-8. `infer_server.py`：使用转换为CTranslate2的模型部署到服务器端，提供给客户端调用。
-9. `convert-ggml.py`：转换模型为GGML格式模型，给Android应用或者Windows应用使用。
-10. `AndroidDemo`：该目录存放的是部署模型到Android的源码。
-11. `WhisperDesktop`：该目录存放的是Windows桌面应用的程序。
+2. `finetune.py`：PEFT方式微调模型。
+3. `finetune_all.py`：全参数微调模型。
+4. `merge_lora.py`：合并Whisper和Lora的模型。
+5. `evaluation.py`：评估使用微调后的模型或者Whisper原模型。
+6. `infer_tfs.py`：使用transformers直接调用微调后的模型或者Whisper原模型预测，只适合推理短音频。
+7. `infer_ct2.py`：使用转换为CTranslate2的模型预测，主要参考这个程序用法。
+8. `infer_gui.py`：有GUI界面操作，使用转换为CTranslate2的模型预测。
+9. `infer_server.py`：使用转换为CTranslate2的模型部署到服务器端，提供给客户端调用。
+10. `convert-ggml.py`：转换模型为GGML格式模型，给Android应用或者Windows应用使用。
+11. `AndroidDemo`：该目录存放的是部署模型到Android的源码。
+12. `WhisperDesktop`：该目录存放的是Windows桌面应用的程序。
 
 
-
-## Fine-tuning
+<a name='模型说明'></a>
+## 模型说明
 |       Model      |  (Re)Sample Rate   |                      Train Datasets         | Fine-tuning (full or peft) | 
 |:----------------:|:-------:|:----------------------------------------------------------:|:-----------:|
 | Belle-whisper-large-v2-zh | 16KHz | [AISHELL-1](https://openslr.magicdatatech.com/resources/33/) [AISHELL-2](https://www.aishelltech.com/aishell_2) [WenetSpeech](https://wenet.org.cn/WenetSpeech/) [HKUST](https://catalog.ldc.upenn.edu/LDC2005S15)  |   full fine-tuning   |    
@@ -73,20 +75,19 @@ OpenAI在开源了号称其英文语音辨识能力已达到人类水准的Whisp
 
 <a name='模型效果'></a>
 
-## CER 
+## 模型效果
 |      Model       |  Language Tag   | aishell_1_test |aishell_2_test| wenetspeech test_net | wenetspeech test_meeting | HKUST_dev| Model Link |
 |:----------------:|:-------:|:-----------:|:-----------:|:--------:|:-----------:|:-------:|:-------:|
-| whisper-large-v2 | Chinese |  0.0    | 0.0  |   0.0  |  0.0  | 0.0 | [HF](https://huggingface.co/openai/whisper-large-v2)|
-| Belle-whisper-large-v2-zh | Chinese |   0.0    | 0.0  |   0.0    | 0.0 | 0.0 |[HF](https://huggingface.co/BELLE-2/Belle-whisper-large-v2-zh) |
+| whisper-large-v2 | Chinese |   0.08818   | 0.06183  |   0.12343  |  0.26413  | 0.31917 | [HF](https://huggingface.co/openai/whisper-large-v2)|
+| Belle-whisper-large-v2-zh | Chinese |   0.02549    | 0.03746  |   0.08503   | 0.14598 | 0.16289 |[HF](https://huggingface.co/BELLE-2/Belle-whisper-large-v2-zh) |
 | Belle-distil-whisper-large-v2-zh | Chinese |   0.0    | 0.0  |   0.0    | 0.0 | 0.0 | [HF](https://huggingface.co/BELLE-2/Belle-whisper-large-v2-zh) |
 
 
 
 **重要说明：**
 1. 在评估的时候移除模型输出的标点符号，并把繁体中文转成简体中文。
-2. `aishell_test`为AIShell的测试集，`test_net`和`test_meeting`为WenetSpeech的测试集。
-3. RTF= 所有音频总时间(单位秒) / ASR识别所有音频处理时间(单位秒)。
-6. 微调数据均去除标点、不带时间戳。
+2. `aishell_1_test`为AIShell-1的测试集，`aishell_2_test`为AIShell-2的测试集，`test_net`和`test_meeting`为WenetSpeech的测试集。
+3. 微调数据均去除标点、不带时间戳。
 
 <a name='安装环境'></a>
 
@@ -230,7 +231,7 @@ accelerate launch finetune.py --base_model=openai/whisper-tiny --output_dir=outp
 
 ## 合并模型
 
-微调完成之后会有两个模型，第一个是Whisper基础模型，第二个是Lora模型，需要把这两个模型合并之后才能之后的操作。这个程序只需要传递两个参数，`--lora_model`指定的是训练结束后保存的Lora模型路径，其实就是检查点文件夹路径，第二个`--output_dir`是合并后模型的保存目录。
+PEFT方式微调模型完成之后会有两个模型，第一个是Whisper基础模型，第二个是Lora模型，需要把这两个模型合并之后才能之后的操作。这个程序只需要传递两个参数，`--lora_model`指定的是训练结束后保存的Lora模型路径，其实就是检查点文件夹路径，第二个`--output_dir`是合并后模型的保存目录。
 ```shell
 python merge_lora.py --lora_model=output/whisper-tiny/checkpoint-best/ --output_dir=models/
 ```

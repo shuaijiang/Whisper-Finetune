@@ -67,11 +67,11 @@ OpenAI在开源了号称其英文语音辨识能力已达到人类水准的Whisp
 
 <a name='模型说明'></a>
 ## 模型说明
-|       Model      | Parameters(M) |  Data (Re)Sample Rate   |                      Train Datasets         | Fine-tuning (full or peft) | 
-|:----------------:|:-------:|:-------:|:----------------------------------------------------------:|:-----------:|
-| Belle-whisper-large-v2-zh | 1550 | 16KHz | [AISHELL-1](https://openslr.magicdatatech.com/resources/33/) [AISHELL-2](https://www.aishelltech.com/aishell_2) [WenetSpeech](https://wenet.org.cn/WenetSpeech/) [HKUST](https://catalog.ldc.upenn.edu/LDC2005S15)  |   full fine-tuning   |    
-| Belle-distil-whisper-large-v2-zh | 756 | 16KHz | [AISHELL-1](https://openslr.magicdatatech.com/resources/33/) [AISHELL-2](https://www.aishelltech.com/aishell_2) [WenetSpeech](https://wenet.org.cn/WenetSpeech/) [HKUST](https://catalog.ldc.upenn.edu/LDC2005S15)  |   full fine-tuning    |    
-| Belle-whisper-large-v3-zh | 1550 | 16KHz | [AISHELL-1](https://openslr.magicdatatech.com/resources/33/) [AISHELL-2](https://www.aishelltech.com/aishell_2) [WenetSpeech](https://wenet.org.cn/WenetSpeech/) [HKUST](https://catalog.ldc.upenn.edu/LDC2005S15)  |   full fine-tuning   |    
+|       Model      | Parameters(M) |Base Model|  Data (Re)Sample Rate   |                      Train Datasets         | Fine-tuning (full or peft) | 
+|:----------------:|:-------:|:-------:|:-------:|:----------------------------------------------------------:|:-----------:|
+| Belle-whisper-large-v2-zh | 1550 |whisper-large-v2| 16KHz | [AISHELL-1](https://openslr.magicdatatech.com/resources/33/) [AISHELL-2](https://www.aishelltech.com/aishell_2) [WenetSpeech](https://wenet.org.cn/WenetSpeech/) [HKUST](https://catalog.ldc.upenn.edu/LDC2005S15)  |   full fine-tuning   |    
+| Belle-distil-whisper-large-v2-zh | 756 | distil-whisper-large-v2 | 16KHz | [AISHELL-1](https://openslr.magicdatatech.com/resources/33/) [AISHELL-2](https://www.aishelltech.com/aishell_2) [WenetSpeech](https://wenet.org.cn/WenetSpeech/) [HKUST](https://catalog.ldc.upenn.edu/LDC2005S15)  |   full fine-tuning    |    
+| Belle-whisper-large-v3-zh | 1550 |whisper-large-v3 | 16KHz | [AISHELL-1](https://openslr.magicdatatech.com/resources/33/) [AISHELL-2](https://www.aishelltech.com/aishell_2) [WenetSpeech](https://wenet.org.cn/WenetSpeech/) [HKUST](https://catalog.ldc.upenn.edu/LDC2005S15)  |   TODO   |    
 
 <a name='模型效果'></a>
 
@@ -80,6 +80,7 @@ OpenAI在开源了号称其英文语音辨识能力已达到人类水准的Whisp
 |:----------------:|:-------:|:-----------:|:-----------:|:--------:|:-----------:|:-------:|:-------:|
 | whisper-large-v2 | Chinese |   8.818   | 6.183  |   12.343  |  26.413  | 31.917 | [HF](https://huggingface.co/openai/whisper-large-v2)|
 | Belle-whisper-large-v2-zh | Chinese |   2.549    | 3.746  |   8.503   | 14.598 | 16.289 |[HF](https://huggingface.co/BELLE-2/Belle-whisper-large-v2-zh) |
+| distil-whisper-large-v2 | Chinese |  -    | -  |   -  | - | -|[HF](https://huggingface.co/distil-whisper/distil-large-v2) |
 | Belle-distilwhisper-large-v2-zh | Chinese |  5.958   | 6.477  |   12.786    | 17.039 | 20.771 | [HF](https://huggingface.co/BELLE-2/Belle-distilwhisper-large-v2-zh) |
 
 
@@ -88,6 +89,7 @@ OpenAI在开源了号称其英文语音辨识能力已达到人类水准的Whisp
 1. 在评估的时候移除模型输出的标点符号，并把繁体中文转成简体中文。
 2. `aishell_1_test`为AIShell-1的测试集，`aishell_2_test`为AIShell-2的测试集，`test_net`和`test_meeting`为WenetSpeech的测试集。
 3. 微调数据均去除标点、不带时间戳。
+4. distil-whisper-large-v2基于英文数据蒸馏，只能输出英文。 It's important to note that the original distil-whisper-large-v2 cannot transcribe Chinese (it only outputs English).
 
 <a name='安装环境'></a>
 

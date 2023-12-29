@@ -67,20 +67,20 @@ OpenAI在开源了号称其英文语音辨识能力已达到人类水准的Whisp
 
 <a name='模型说明'></a>
 ## 模型说明
-|       Model      |  (Re)Sample Rate   |                      Train Datasets         | Fine-tuning (full or peft) | 
-|:----------------:|:-------:|:----------------------------------------------------------:|:-----------:|
-| Belle-whisper-large-v2-zh | 16KHz | [AISHELL-1](https://openslr.magicdatatech.com/resources/33/) [AISHELL-2](https://www.aishelltech.com/aishell_2) [WenetSpeech](https://wenet.org.cn/WenetSpeech/) [HKUST](https://catalog.ldc.upenn.edu/LDC2005S15)  |   full fine-tuning   |    
-| Belle-distil-whisper-large-v2-zh | 16KHz | [AISHELL-1](https://openslr.magicdatatech.com/resources/33/) [AISHELL-2](https://www.aishelltech.com/aishell_2) [WenetSpeech](https://wenet.org.cn/WenetSpeech/) [HKUST](https://catalog.ldc.upenn.edu/LDC2005S15)  |   full fine-tuning    |    
-| Belle-whisper-large-v3-zh | 16KHz | [AISHELL-1](https://openslr.magicdatatech.com/resources/33/) [AISHELL-2](https://www.aishelltech.com/aishell_2) [WenetSpeech](https://wenet.org.cn/WenetSpeech/) [HKUST](https://catalog.ldc.upenn.edu/LDC2005S15)  |   full fine-tuning   |    
+|       Model      | Parameters(M) |  Data (Re)Sample Rate   |                      Train Datasets         | Fine-tuning (full or peft) | 
+|:----------------:|:-------:|:-------:|:----------------------------------------------------------:|:-----------:|
+| Belle-whisper-large-v2-zh | 1550 | 16KHz | [AISHELL-1](https://openslr.magicdatatech.com/resources/33/) [AISHELL-2](https://www.aishelltech.com/aishell_2) [WenetSpeech](https://wenet.org.cn/WenetSpeech/) [HKUST](https://catalog.ldc.upenn.edu/LDC2005S15)  |   full fine-tuning   |    
+| Belle-distil-whisper-large-v2-zh | 756 | 16KHz | [AISHELL-1](https://openslr.magicdatatech.com/resources/33/) [AISHELL-2](https://www.aishelltech.com/aishell_2) [WenetSpeech](https://wenet.org.cn/WenetSpeech/) [HKUST](https://catalog.ldc.upenn.edu/LDC2005S15)  |   full fine-tuning    |    
+| Belle-whisper-large-v3-zh | 1550 | 16KHz | [AISHELL-1](https://openslr.magicdatatech.com/resources/33/) [AISHELL-2](https://www.aishelltech.com/aishell_2) [WenetSpeech](https://wenet.org.cn/WenetSpeech/) [HKUST](https://catalog.ldc.upenn.edu/LDC2005S15)  |   full fine-tuning   |    
 
 <a name='模型效果'></a>
 
-## 模型效果
+## 模型效果 CER(%) ↓
 |      Model       |  Language Tag   | aishell_1_test |aishell_2_test| wenetspeech test_net | wenetspeech test_meeting | HKUST_dev| Model Link |
 |:----------------:|:-------:|:-----------:|:-----------:|:--------:|:-----------:|:-------:|:-------:|
-| whisper-large-v2 | Chinese |   0.08818   | 0.06183  |   0.12343  |  0.26413  | 0.31917 | [HF](https://huggingface.co/openai/whisper-large-v2)|
-| Belle-whisper-large-v2-zh | Chinese |   0.02549    | 0.03746  |   0.08503   | 0.14598 | 0.16289 |[HF](https://huggingface.co/BELLE-2/Belle-whisper-large-v2-zh) |
-| Belle-distil-whisper-large-v2-zh | Chinese |   0.0    | 0.0  |   0.0    | 0.0 | 0.0 | [HF](https://huggingface.co/BELLE-2/Belle-whisper-large-v2-zh) |
+| whisper-large-v2 | Chinese |   8.818   | 6.183  |   12.343  |  26.413  | 31.917 | [HF](https://huggingface.co/openai/whisper-large-v2)|
+| Belle-whisper-large-v2-zh | Chinese |   2.549    | 3.746  |   8.503   | 14.598 | 16.289 |[HF](https://huggingface.co/BELLE-2/Belle-whisper-large-v2-zh) |
+| Belle-distilwhisper-large-v2-zh | Chinese |  5.958   | 6.477  |   12.786    | 17.039 | 20.771 | [HF](https://huggingface.co/BELLE-2/Belle-distilwhisper-large-v2-zh) |
 
 
 

@@ -76,7 +76,7 @@ OpenAI在开源了号称其英文语音辨识能力已达到人类水准的Whisp
 <a name='模型效果'></a>
 
 ## 模型效果 CER(%) ↓
-|      Model       |  Language Tag   | aishell_1_test |aishell_2_test| wenetspeech test_net | wenetspeech test_meeting | HKUST_dev| Model Link |
+|      Model       |  Language Tag   | aishell_1 test |aishell_2 test| wenetspeech test_net | wenetspeech test_meeting | HKUST_dev| Model Link |
 |:----------------:|:-------:|:-----------:|:-----------:|:--------:|:-----------:|:-------:|:-------:|
 | whisper-large-v2 | Chinese |   8.818   | 6.183  |   12.343  |  26.413  | 31.917 | [HF](https://huggingface.co/openai/whisper-large-v2)|
 | Belle-whisper-large-v2-zh | Chinese |   2.549    | 3.746  |   8.503   | 14.598 | 16.289 |[HF](https://huggingface.co/BELLE-2/Belle-whisper-large-v2-zh) |

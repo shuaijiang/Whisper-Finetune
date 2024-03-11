@@ -13,19 +13,23 @@
 OpenAI在开源了号称其英文语音辨识能力已达到人类水准的Whisper项目，且它亦支持其它98种语言的自动语音辨识。Whisper所提供的自动语音识与翻译任务，它们能将各种语言的语音变成文本，也能将这些文本翻译成英文。本项目主要的目的是为了对Whisper模型使用Lora进行微调，**支持无时间戳数据训练，有时间戳数据训练、无语音数据训练**。目前开源了好几个模型，具体可以在[openai](https://huggingface.co/openai)查看，下面列出了常用的几个模型。另外项目最后还支持CTranslate2加速推理和GGML加速推理，提示一下，加速推理支持直接使用Whisper原模型转换，并不一定需要微调。支持Windows桌面应用，Android应用和服务器部署。
 
 ### 请先点 :star: 
-
+## 🔄 最新更新
+* [2024/03/11] 发布Belle-whisper-large-v3-zh，基于whisper-large-v3提升中文识别能力，复杂场景识别能力显著提升。
+* [2023/12/29] 发布Belle-whisper-large-v2-zh，基于whisper-large-v2提升中文识别能力，中文识别能力显著提升。
+* [2023/12/29] 发布Belle-distilwhisper-large-v2-zh，基于distilwhisper-large-v2提升中文识别能力，兼顾速度和精度。
+ 
 ## 支持模型
 
- - openai/whisper-large-v2
-
+- openai/whisper-large-v2
+- openai/whisper-large-v3
+- distil-whisper
 
 **使用环境：**
 
 - Anaconda 3
-- Python 3.8
-- Pytorch 1.13.1
-- Ubuntu 18.04
-- GPU A100-PCIE-40GB*1
+- Python 3.10
+- Pytorch 2.1.0
+- GPU A100-PCIE-80GB
 
 
 ## 目录

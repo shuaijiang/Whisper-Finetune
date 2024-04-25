@@ -52,7 +52,10 @@ class CustomDataset(Dataset):
         self.timestamp_begin = self.vocab['<|notimestamps|>'] + 1
         self.startoftranscript = self.vocab['<|startoftranscript|>']
         self.endoftext = self.vocab['<|endoftext|>']
-        self.nocaptions = self.vocab['<|nocaptions|>']
+        if '<|nocaptions|>' in self.vocab:
+            self.nocaptions = self.vocab['<|nocaptions|>']
+        else:
+            self.nocaptions = self.vocab['<|nospeech|>'] # support whisper_large_v3
         self.data_list: List[dict] = []
         # 加载数据列表
         self._load_data_list()

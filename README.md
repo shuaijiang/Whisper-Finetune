@@ -14,6 +14,7 @@ OpenAI在开源了号称其英文语音辨识能力已达到人类水准的Whisp
 
 ### 请先点 :star: 
 ## 🔄 最新更新
+* [2024/06/11] 发布Belle-whisper-large-v3-zh-punct，基于Belle-whisper-large-v3提升中文标点能力，同时复杂场景识别能力进一步提升。
 * [2024/03/11] 发布Belle-whisper-large-v3-zh，基于whisper-large-v3提升中文识别能力，复杂场景识别能力显著提升。
 * [2023/12/29] 发布Belle-whisper-large-v2-zh，基于whisper-large-v2提升中文识别能力，中文识别能力显著提升。
 * [2023/12/29] 发布Belle-distilwhisper-large-v2-zh，基于distilwhisper-large-v2提升中文识别能力，兼顾速度和精度。
@@ -76,7 +77,7 @@ OpenAI在开源了号称其英文语音辨识能力已达到人类水准的Whisp
 | Belle-whisper-large-v2-zh | 1550 |whisper-large-v2| 16KHz | [AISHELL-1](https://openslr.magicdatatech.com/resources/33/) [AISHELL-2](https://www.aishelltech.com/aishell_2) [WenetSpeech](https://wenet.org.cn/WenetSpeech/) [HKUST](https://catalog.ldc.upenn.edu/LDC2005S15)  |   full fine-tuning   |    
 | Belle-distil-whisper-large-v2-zh | 756 | distil-whisper-large-v2 | 16KHz | [AISHELL-1](https://openslr.magicdatatech.com/resources/33/) [AISHELL-2](https://www.aishelltech.com/aishell_2) [WenetSpeech](https://wenet.org.cn/WenetSpeech/) [HKUST](https://catalog.ldc.upenn.edu/LDC2005S15)  |   full fine-tuning    |    
 | Belle-whisper-large-v3-zh | 1550 |whisper-large-v3 | 16KHz | [AISHELL-1](https://openslr.magicdatatech.com/resources/33/) [AISHELL-2](https://www.aishelltech.com/aishell_2) [WenetSpeech](https://wenet.org.cn/WenetSpeech/) [HKUST](https://catalog.ldc.upenn.edu/LDC2005S15)  |   full fine-tuning   |    
-
+| Belle-whisper-large-v3-zh-punct | 1550 | Belle-whisper-large-v3-zh | 16KHz | [AISHELL-1](https://openslr.magicdatatech.com/resources/33/) [AISHELL-2](https://www.aishelltech.com/aishell_2) [WenetSpeech](https://wenet.org.cn/WenetSpeech/) [HKUST](https://catalog.ldc.upenn.edu/LDC2005S15)  |   lora fine-tuning   |   
 <a name='模型效果'></a>
 
 ## 模型效果 CER(%) ↓
@@ -85,7 +86,8 @@ OpenAI在开源了号称其英文语音辨识能力已达到人类水准的Whisp
 | whisper-large-v2 | Chinese |   8.818   | 6.183  |   12.343  |  26.413  | 31.917 | [HF](https://huggingface.co/openai/whisper-large-v2)|
 | Belle-whisper-large-v2-zh | Chinese |   **2.549**    | **3.746**  |   **8.503**   | 14.598 | **16.289** |[HF](https://huggingface.co/BELLE-2/Belle-whisper-large-v2-zh) |
 | whisper-large-v3 | Chinese |   8.085   | 5.475  |   11.72  |  20.15  | 28.597 | [HF](https://huggingface.co/openai/whisper-large-v3)|
-| Belle-whisper-large-v3-zh | Chinese |   2.781    | 3.786 |   8.865   | **11.246** | 16.440 |[HF](https://huggingface.co/BELLE-2/Belle-whisper-large-v3-zh) |
+| Belle-whisper-large-v3-zh | Chinese |   2.781    | 3.786 |   8.865   | 11.246 | 16.440 |[HF](https://huggingface.co/BELLE-2/Belle-whisper-large-v3-zh) |
+| Belle-whisper-large-v3-zh-punct | Chinese |   2.945    | 3.808 |   8.998   | **10.973** | 17.196 |[HF](https://huggingface.co/BELLE-2/Belle-whisper-large-v3-zh-punct) |
 | distil-whisper-large-v2 | Chinese |  -    | -  |   -  | - | -|[HF](https://huggingface.co/distil-whisper/distil-large-v2) |
 | Belle-distilwhisper-large-v2-zh | Chinese |  5.958   | 6.477  |   12.786    | 17.039 | 20.771 | [HF](https://huggingface.co/BELLE-2/Belle-distilwhisper-large-v2-zh) |
 
@@ -94,10 +96,9 @@ OpenAI在开源了号称其英文语音辨识能力已达到人类水准的Whisp
 **重要说明：**
 1. 在评估的时候移除模型输出的标点符号，并把繁体中文转成简体中文。
 2. `aishell_1_test`为AIShell-1的测试集，`aishell_2_test`为AIShell-2的测试集，`test_net`和`test_meeting`为WenetSpeech的测试集。
-3. 微调数据均去除标点、不带时间戳。
-4. distil-whisper-large-v2基于英文数据蒸馏，只能输出英文。 It's important to note that the original distil-whisper-large-v2 cannot transcribe Chinese (it only outputs English).
-5. Belle-whisper-large-v3-zh 相比Belle-whisper-large-v2-zh，在复杂场景有明显优势，在wenetspeech meeting上取得SOTA效果
-   
+3. distil-whisper-large-v2基于英文数据蒸馏，只能输出英文。 It's important to note that the original distil-whisper-large-v2 cannot transcribe Chinese (it only outputs English).
+4. Belle-whisper-large-v3-zh 相比Belle-whisper-large-v2-zh，在复杂场景有明显优势，在wenetspeech meeting上取得更好效果，有60%的相对提升。
+5. Belle-whisper-large-v3-zh-punct 具备标点符号能力，标点符号来自[punc_ct-transformer_cn-en-common-vocab471067-large](https://www.modelscope.cn/models/iic/punc_ct-transformer_cn-en-common-vocab471067-large/)。此外，复杂场景效果进一步提升。
 <a name='安装环境'></a>
 
 ## 安装环境

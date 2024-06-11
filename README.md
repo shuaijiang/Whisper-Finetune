@@ -97,7 +97,7 @@ OpenAI在开源了号称其英文语音辨识能力已达到人类水准的Whisp
 1. 在评估的时候移除模型输出的标点符号，并把繁体中文转成简体中文。
 2. `aishell_1_test`为AIShell-1的测试集，`aishell_2_test`为AIShell-2的测试集，`test_net`和`test_meeting`为WenetSpeech的测试集。
 3. distil-whisper-large-v2基于英文数据蒸馏，只能输出英文。 It's important to note that the original distil-whisper-large-v2 cannot transcribe Chinese (it only outputs English).
-4. Belle-whisper-large-v3-zh 相比Belle-whisper-large-v2-zh，在复杂场景有明显优势，在wenetspeech meeting上取得更好效果，有60%的相对提升。
+4. Belle-whisper-large-v3-zh 相比Belle-whisper-large-v2-zh，在复杂场景有明显优势，在wenetspeech meeting上取得更好效果，有22%的相对提升。
 5. Belle-whisper-large-v3-zh-punct 具备标点符号能力，标点符号来自[punc_ct-transformer_cn-en-common-vocab471067-large](https://www.modelscope.cn/models/iic/punc_ct-transformer_cn-en-common-vocab471067-large/)。此外，复杂场景效果进一步提升。
 <a name='安装环境'></a>
 

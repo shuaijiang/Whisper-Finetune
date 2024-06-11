@@ -17,21 +17,15 @@ OpenAI open-sourced project Whisper, which claims to have human-level speech rec
 ### please :star: 
 
 ## Supporting models
-
-- openai/whisper-tiny
-- openai/whisper-base
-- openai/whisper-small
-- openai/whisper-medium
-- openai/whisper-large
 - openai/whisper-large-v2
+- openai/whisper-large-v3
+- distil-whisper
 
 **Environment：**
-
 - Anaconda 3
-- Python 3.8
-- Pytorch 1.13.1
-- Ubuntu 18.04
-- GPU A100-PCIE-40GB*1
+- Python 3.10
+- Pytorch 2.1.0
+- GPU A100-PCIE-80GB
 
 ## Catalogue
 
@@ -57,68 +51,44 @@ OpenAI open-sourced project Whisper, which claims to have human-level speech rec
 ## Introduction of the main program of the project
 
 1. `aishell.py`: Create AIShell training data.
-2. `finetune.py`: Fine-tune the model.
-3. `merge_lora.py`: Merge Whisper and Lora models.
-4. `evaluation.py`: Evaluate the fine-tuned model or the original Whisper model.
-5. `infer_tfs.py`: Use the transformers library to directly call the fine-tuned model or the original Whisper model for prediction, suitable only for inference on short audio clips.
-6. `infer_ct2.py`: Use the converted CTranslate2 model for prediction, primarily as a reference for program usage.
-7. `infer_gui.py`: Has a GUI interface for operation, using the converted CTranslate2 model for prediction.
-8. `infer_server.py`: Deploys the converted CTranslate2 model to the server for use by client applications.
-9. `convert-ggml.py`: Converts the model to GGML format for use in Android or Windows applications.
-10. `AndroidDemo`: Contains the source code for deploying the model to Android.
-11. `WhisperDesktop`: Contains the program for the Windows desktop application.
+2. `finetune.py`: Fine-tune the model by peft(Lora).
+3. `finetune_all.py`: Fine-tune all paramenters of the model.
+4. `merge_lora.py`: Merge Whisper and Lora models.
+5. `evaluation.py`: Evaluate the fine-tuned model or the original Whisper model.
+6. `infer_tfs.py`: Use the transformers library to directly call the fine-tuned model or the original Whisper model for prediction, suitable only for inference on short audio clips.
+7. `infer_ct2.py`: Use the converted CTranslate2 model for prediction, primarily as a reference for program usage.
+8. `infer_gui.py`: Has a GUI interface for operation, using the converted CTranslate2 model for prediction.
+9. `infer_server.py`: Deploys the converted CTranslate2 model to the server for use by client applications.
+10. `convert-ggml.py`: Converts the model to GGML format for use in Android or Windows applications.
+11. `AndroidDemo`: Contains the source code for deploying the model to Android.
+12. `WhisperDesktop`: Contains the program for the Windows desktop application.
 
-<a name='模型测试表'></a>
+<a name='模型说明'></a>
+## Model Description
+|       Model      | Parameters(M) |Base Model|  Data (Re)Sample Rate   |                      Train Datasets         | Fine-tuning (full or peft) | 
+|:----------------:|:-------:|:-------:|:-------:|:----------------------------------------------------------:|:-----------:|
+| Belle-whisper-large-v2-zh | 1550 |whisper-large-v2| 16KHz | [AISHELL-1](https://openslr.magicdatatech.com/resources/33/) [AISHELL-2](https://www.aishelltech.com/aishell_2) [WenetSpeech](https://wenet.org.cn/WenetSpeech/) [HKUST](https://catalog.ldc.upenn.edu/LDC2005S15)  |   full fine-tuning   |    
+| Belle-distil-whisper-large-v2-zh | 756 | distil-whisper-large-v2 | 16KHz | [AISHELL-1](https://openslr.magicdatatech.com/resources/33/) [AISHELL-2](https://www.aishelltech.com/aishell_2) [WenetSpeech](https://wenet.org.cn/WenetSpeech/) [HKUST](https://catalog.ldc.upenn.edu/LDC2005S15)  |   full fine-tuning    |    
+| Belle-whisper-large-v3-zh | 1550 |whisper-large-v3 | 16KHz | [AISHELL-1](https://openslr.magicdatatech.com/resources/33/) [AISHELL-2](https://www.aishelltech.com/aishell_2) [WenetSpeech](https://wenet.org.cn/WenetSpeech/) [HKUST](https://catalog.ldc.upenn.edu/LDC2005S15)  |   full fine-tuning   |    
+| Belle-whisper-large-v3-zh-punct | 1550 | Belle-whisper-large-v3-zh | 16KHz | [AISHELL-1](https://openslr.magicdatatech.com/resources/33/) [AISHELL-2](https://www.aishelltech.com/aishell_2) [WenetSpeech](https://wenet.org.cn/WenetSpeech/) [HKUST](https://catalog.ldc.upenn.edu/LDC2005S15)  |   lora fine-tuning   |   
 
-## Test table
+<a name='模型效果'></a>
+## Model CER(%) ↓
+|      Model       |  Language Tag   | aishell_1 test |aishell_2 test| wenetspeech test_net | wenetspeech test_meeting | HKUST_dev| Model Link |
+|:----------------:|:-------:|:-----------:|:-----------:|:--------:|:-----------:|:-------:|:-------:|
+| whisper-large-v2 | Chinese |   8.818   | 6.183  |   12.343  |  26.413  | 31.917 | [HF](https://huggingface.co/openai/whisper-large-v2)|
+| Belle-whisper-large-v2-zh | Chinese |   **2.549**    | **3.746**  |   **8.503**   | 14.598 | **16.289** |[HF](https://huggingface.co/BELLE-2/Belle-whisper-large-v2-zh) |
+| whisper-large-v3 | Chinese |   8.085   | 5.475  |   11.72  |  20.15  | 28.597 | [HF](https://huggingface.co/openai/whisper-large-v3)|
+| Belle-whisper-large-v3-zh | Chinese |   2.781    | 3.786 |   8.865   | 11.246 | 16.440 |[HF](https://huggingface.co/BELLE-2/Belle-whisper-large-v3-zh) |
+| Belle-whisper-large-v3-zh-punct | Chinese |   2.945    | 3.808 |   8.998   | **10.973** | 17.196 |[HF](https://huggingface.co/BELLE-2/Belle-whisper-large-v3-zh-punct) |
+| distil-whisper-large-v2 | Chinese |  -    | -  |   -  | - | -|[HF](https://huggingface.co/distil-whisper/distil-large-v2) |
+| Belle-distilwhisper-large-v2-zh | Chinese |  5.958   | 6.477  |   12.786    | 17.039 | 20.771 | [HF](https://huggingface.co/BELLE-2/Belle-distilwhisper-large-v2-zh) |
 
-1. Test table for cer of the original model.
-
-|      Model       | Language | aishell_test | test_net | test_meeting |
-|:----------------:|:--------:|:------------:|:--------:|:------------:|
-|   whisper-tiny   | Chinese  |   0.31898    | 0.40482  |   0.75332    |
-|   whisper-base   | Chinese  |   0.22196    | 0.30404  |   0.50378    |
-|  whisper-small   | Chinese  |   0.13897    | 0.18417  |   0.31154    |
-|  whisper-medium  | Chinese  |   0.09538    | 0.13591  |   0.26669    |
-|  whisper-large   | Chinese  |   0.08969    | 0.12933  |   0.23439    |
-| whisper-large-v2 | Chinese  |   0.08817    | 0.12332  |   0.26547    |
-
-2. Cer test table after fine-tuning the dataset.
-
-|      Model       | Language |                          Dataset                           | aishell_test | test_net | test_meeting |                            
-|:----------------:|:--------:|:----------------------------------------------------------:|:------------:|:--------:|:------------:|
-|   whisper-tiny   | Chinese  | [AIShell](https://openslr.magicdatatech.com/resources/33/) |   0.13043    |  0.4463  |   0.57728    | 
-|   whisper-base   | Chinese  | [AIShell](https://openslr.magicdatatech.com/resources/33/) |   0.08999    | 0.33089  |   0.40713    | 
-|  whisper-small   | Chinese  | [AIShell](https://openslr.magicdatatech.com/resources/33/) |   0.05452    | 0.19831  |   0.24229    | 
-|  whisper-medium  | Chinese  | [AIShell](https://openslr.magicdatatech.com/resources/33/) |   0.03681    | 0.13073  |   0.16939    | 
-| whisper-large-v2 | Chinese  | [AIShell](https://openslr.magicdatatech.com/resources/33/) |   0.03139    | 0.12201  |   0.15776    |
-|   whisper-tiny   | Chinese  |     [WenetSpeech](./tools/create_wenetspeech_data.py)      |   0.21009    | 0.29352  |   0.41506    | 
-|   whisper-base   | Chinese  |     [WenetSpeech](./tools/create_wenetspeech_data.py)      |   0.14548    | 0.17747  |   0.30590    |
-|  whisper-small   | Chinese  |     [WenetSpeech](./tools/create_wenetspeech_data.py)      |   0.08484    | 0.11801  |   0.23471    |
-|  whisper-medium  | Chinese  |     [WenetSpeech](./tools/create_wenetspeech_data.py)      |   0.05861    | 0.08794  |   0.19486    | 
-| whisper-large-v2 | Chinese  |     [WenetSpeech](./tools/create_wenetspeech_data.py)      |   0.05443    | 0.08367  |   0.19087    | 
-
-3. inference speed test table, using the GPU GTX3090 (24G).
-
-|      Model       | RTF for Transformer(float16) | RTF for CTranslate2(float16) | RTF for CTranslate2(int8_float16) |
-|:----------------:|:----------------------------:|:----------------------------:|:---------------------------------:|
-|   whisper-tiny   |             0.03             |             0.06             |               0.06                |
-|   whisper-base   |             0.04             |             0.06             |               0.06                |    
-|  whisper-small   |             0.08             |             0.08             |               0.08                | 
-|  whisper-medium  |             0.13             |             0.10             |               0.10                |  
-| whisper-large-v2 |             0.19             |             0.12             |               0.12                |
-
-
-**Important explanation**:
-
-1. Remove the punctuation marks from the model output during evaluation, and convert traditional Chinese to simplified
-   Chinese.
-2. `aishell_test` is the test set of AIShell, while `test_net` and `test_meeting` are the test sets of WenetSpeech.
-3. RTF = Total duration of all audio (in seconds) / ASR recognition processing time for all audio (in seconds).
-4. The audio for testing speed is `dataset/test.wav`, with a duration of 8 seconds.
-5. The training data uses data with punctuation marks, resulting in a slightly higher cer.
-6. The AiShell data used for fine-tuning does not include timestamp information, while the WenetSpeech data used for
-   fine-tuning includes timestamp information.
+**Note:**
+1. All punctuation marks are removed during evaluation to compute the CER.
+2. Compare to whisper-large-v2, Belle-whisper-large-v2-zh demonstrates a 30-70% relative improvement in performance on Chinese ASR benchmarks.
+3. Belle-whisper-large-v3-zh has a significant improvement in complex acoustic scenes(such as wenetspeech_meeting).
+4. Belle-whisper-large-v3-zh-punct even has a slight improvement in complex acoustic scenes(such as wenetspeech_meeting), while improving the punctuation ability.
 
 <a name='安装环境'></a>
 

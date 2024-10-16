@@ -14,6 +14,7 @@ OpenAI在开源了号称其英文语音辨识能力已达到人类水准的Whisp
 
 ### 请先点 :star: 
 ## 🔄 最新更新
+* [2024/10/16] 发布Belle-whisper-large-v3-turbo-zh，基于whisper-large-v3-turbo提升中文识别能力（包括标点），中文识别能力显著提升（24-64%相对提升），识别速度7-8倍提升。
 * [2024/06/11] 发布Belle-whisper-large-v3-zh-punct，基于Belle-whisper-large-v3提升中文标点能力，同时复杂场景识别能力进一步提升。
 * [2024/03/11] 发布Belle-whisper-large-v3-zh，基于whisper-large-v3提升中文识别能力，复杂场景识别能力显著提升。
 * [2023/12/29] 发布Belle-whisper-large-v2-zh，基于whisper-large-v2提升中文识别能力，中文识别能力显著提升。
@@ -77,12 +78,15 @@ OpenAI在开源了号称其英文语音辨识能力已达到人类水准的Whisp
 | Belle-whisper-large-v2-zh | 1550 |whisper-large-v2| 16KHz | [AISHELL-1](https://openslr.magicdatatech.com/resources/33/) [AISHELL-2](https://www.aishelltech.com/aishell_2) [WenetSpeech](https://wenet.org.cn/WenetSpeech/) [HKUST](https://catalog.ldc.upenn.edu/LDC2005S15)  |   full fine-tuning   |    
 | Belle-distil-whisper-large-v2-zh | 756 | distil-whisper-large-v2 | 16KHz | [AISHELL-1](https://openslr.magicdatatech.com/resources/33/) [AISHELL-2](https://www.aishelltech.com/aishell_2) [WenetSpeech](https://wenet.org.cn/WenetSpeech/) [HKUST](https://catalog.ldc.upenn.edu/LDC2005S15)  |   full fine-tuning    |    
 | Belle-whisper-large-v3-zh | 1550 |whisper-large-v3 | 16KHz | [AISHELL-1](https://openslr.magicdatatech.com/resources/33/) [AISHELL-2](https://www.aishelltech.com/aishell_2) [WenetSpeech](https://wenet.org.cn/WenetSpeech/) [HKUST](https://catalog.ldc.upenn.edu/LDC2005S15)  |   full fine-tuning   |    
-| Belle-whisper-large-v3-zh-punct | 1550 | Belle-whisper-large-v3-zh | 16KHz | [AISHELL-1](https://openslr.magicdatatech.com/resources/33/) [AISHELL-2](https://www.aishelltech.com/aishell_2) [WenetSpeech](https://wenet.org.cn/WenetSpeech/) [HKUST](https://catalog.ldc.upenn.edu/LDC2005S15)  |   lora fine-tuning   |   
+| Belle-whisper-large-v3-zh-punct | 1550 | Belle-whisper-large-v3-zh | 16KHz | [AISHELL-1](https://openslr.magicdatatech.com/resources/33/) [AISHELL-2](https://www.aishelltech.com/aishell_2) [WenetSpeech](https://wenet.org.cn/WenetSpeech/) [HKUST](https://catalog.ldc.upenn.edu/LDC2005S15)  |   lora fine-tuning   |  
+| Belle-whisper-large-v3-turbo-zh | 809 | Belle-whisper-large-v3-turbo | 16KHz | [AISHELL-1](https://openslr.magicdatatech.com/resources/33/) [AISHELL-2](https://www.aishelltech.com/aishell_2) [WenetSpeech](https://wenet.org.cn/WenetSpeech/) [HKUST](https://catalog.ldc.upenn.edu/LDC2005S15)  |   full fine-tuning   |   
 <a name='模型效果'></a>
 
 ## 模型效果 CER(%) ↓
 |      Model       |  Language Tag   | aishell_1 test |aishell_2 test| wenetspeech test_net | wenetspeech test_meeting | HKUST_dev| Model Link |
 |:----------------:|:-------:|:-----------:|:-----------:|:--------:|:-----------:|:-------:|:-------:|
+| whisper-large-v3-turbo | Chinese |   8.639    | 6.014 |   13.507   | 20.313 | 37.324 |[HF](https://huggingface.co/openai/whisper-large-v3-turbo) |
+| Belle-whisper-large-v3-turbo-zh | Chinese |   3.070    | 4.114 |   10.230   | 13.357 | 18.944 |[HF](https://huggingface.co/BELLE-2/Belle-whisper-large-v3-turbo-zh) |
 | whisper-large-v2 | Chinese |   8.818   | 6.183  |   12.343  |  26.413  | 31.917 | [HF](https://huggingface.co/openai/whisper-large-v2)|
 | Belle-whisper-large-v2-zh | Chinese |   **2.549**    | **3.746**  |   **8.503**   | 14.598 | **16.289** |[HF](https://huggingface.co/BELLE-2/Belle-whisper-large-v2-zh) |
 | whisper-large-v3 | Chinese |   8.085   | 5.475  |   11.72  |  20.15  | 28.597 | [HF](https://huggingface.co/openai/whisper-large-v3)|
@@ -99,6 +103,7 @@ OpenAI在开源了号称其英文语音辨识能力已达到人类水准的Whisp
 3. distil-whisper-large-v2基于英文数据蒸馏，只能输出英文。 It's important to note that the original distil-whisper-large-v2 cannot transcribe Chinese (it only outputs English).
 4. Belle-whisper-large-v3-zh 相比Belle-whisper-large-v2-zh，在复杂场景有明显优势，在wenetspeech meeting上取得更好效果，有22%的相对提升。
 5. Belle-whisper-large-v3-zh-punct 具备标点符号能力，标点符号来自[punc_ct-transformer_cn-en-common-vocab471067-large](https://www.modelscope.cn/models/iic/punc_ct-transformer_cn-en-common-vocab471067-large/)。此外，复杂场景效果进一步提升。
+6. Belle-whisper-large-v3-turbo-zh 相比whisper-large-v3-turbo有24-64%的相对提升，相比Belle-whisper-large-v3-zh-punct有轻微的精度下降，但是有7-8倍的速度提升，在受限算力下有显著应用价值。
 <a name='安装环境'></a>
 
 ## 安装环境

@@ -24,6 +24,7 @@ OpenAI在开源了号称其英文语音辨识能力已达到人类水准的Whisp
 
 - openai/whisper-large-v2
 - openai/whisper-large-v3
+- openai/whisper-large-v3-turbo
 - distil-whisper
 
 **使用环境：**

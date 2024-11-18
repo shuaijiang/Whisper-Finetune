@@ -7,6 +7,7 @@ from typing import List
 import librosa
 import numpy as np
 import soundfile
+import torch
 from torch.utils.data import Dataset
 from tqdm import tqdm
 
@@ -61,11 +62,25 @@ class CustomDataset(Dataset):
         self._load_data_list()
         # 数据增强配置参数
         self.augment_configs = None
+        self.spec_aug = dict()
         self.noises_path = None
         self.speed_rates = None
         if augment_config_path:
             with open(augment_config_path, 'r', encoding='utf-8') as f:
                 self.augment_configs = json.load(f)
+            for augmnet_config in self.augment_configs:
+                if augmnet_config.get('type') == 'specaug':
+                    params = augmnet_config.get('params', {})
+                    prob = augmnet_config.get('prob', 0.5)
+                    defaults = {
+                        'num_t_mask': 2,
+                        'num_f_mask': 2,
+                        'max_t': 50,
+                        'max_f': 10,
+                        'prob': prob,
+                    }
+                    self.spec_aug.update({key: params.get(key, default_value) for key, default_value in defaults.items()})
+                    
 
     # 加载数据列表
     def _load_data_list(self):
@@ -155,6 +170,14 @@ class CustomDataset(Dataset):
                 # 如果没有文本，则使用<|nocaptions|>标记
                 data = self.processor(audio=sample, sampling_rate=self.sample_rate)
                 data['labels'] = [self.startoftranscript, self.nocaptions, self.endoftext]
+            
+            if self.spec_aug is not None:
+                if random.random() < self.spec_aug.get('prob'):
+                    data = self.spec_augmentation(data, 
+                                                  num_t_mask=self.spec_aug['num_t_mask'], 
+                                                  num_f_mask=self.spec_aug['num_f_mask'],
+                                                  max_t=self.spec_aug['max_t'],
+                                                  max_f=self.spec_aug['max_f'])
             return data
         except Exception as e:
             print(f'读取数据出错，序号：{idx}，错误信息：{e}', file=sys.stderr)
@@ -289,4 +312,39 @@ class CustomDataset(Dataset):
     def rms_db(sample):
         mean_square = np.mean(sample ** 2)
         return 10 * np.log10(mean_square)
-        
+    
+    def spec_augmentation(self, sample, num_t_mask=2, num_f_mask=2, max_t=50, max_f=10):
+        """ Do spec augmentation
+            Inplace operation
+
+            Args:
+                sample: {id, input_features, ...}
+                num_t_mask: number of time mask to apply
+                num_f_mask: number of freq mask to apply
+                max_t: max width of time mask
+                max_f: max width of freq mask
+
+            Returns
+                {id, input_features, ....}
+        """
+        assert 'input_features' in sample
+        input_features_array = np.array(sample['input_features'])
+        x = torch.as_tensor(input_features_array)
+        assert isinstance(x, torch.Tensor)
+        y = x.clone().detach()
+        max_frames = y.size(0)
+        max_freq = y.size(1)
+        # time mask
+        for _ in range(num_t_mask):
+            start = random.randint(0, max_frames - 1)
+            length = random.randint(1, max_t)
+            end = min(max_frames, start + length)
+            y[start:end, :] = 0
+        # freq mask
+        for _ in range(num_f_mask):
+            start = random.randint(0, max_freq - 1)
+            length = random.randint(1, max_f)
+            end = min(max_freq, start + length)
+            y[:, start:end] = 0
+        sample['input_features'] = y
+        return sample

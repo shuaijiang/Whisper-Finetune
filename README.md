@@ -15,7 +15,7 @@ OpenAI在开源了号称其英文语音辨识能力已达到人类水准的Whisp
 ### 请先点 :star: 
 ## 🔄 最新更新
 * [2024/11/18] 新增谱增强[SpecAugment](https://arxiv.org/abs/1904.08779)功能，有效提升语音识别的鲁棒性。
-* [2024/10/16] 发布Belle-whisper-large-v3-turbo-zh，基于whisper-large-v3-turbo提升中文识别能力（包括标点），中文识别能力显著提升（24-64%相对提升），识别速度7-8倍提升。
+* [2024/10/16] 发布[Belle-whisper-large-v3-turbo-zh](https://huggingface.co/BELLE-2/Belle-whisper-large-v3-turbo-zh)，基于whisper-large-v3-turbo提升中文识别能力（包括标点），中文识别能力显著提升（24-64%相对提升），识别速度7-8倍提升。
 * [2024/06/11] 发布Belle-whisper-large-v3-zh-punct，基于Belle-whisper-large-v3提升中文标点能力，同时复杂场景识别能力进一步提升。
 * [2024/03/11] 发布Belle-whisper-large-v3-zh，基于whisper-large-v3提升中文识别能力，复杂场景识别能力显著提升。
 * [2023/12/29] 发布Belle-whisper-large-v2-zh，基于whisper-large-v2提升中文识别能力，中文识别能力显著提升。

@@ -62,7 +62,7 @@ class CustomDataset(Dataset):
         self._load_data_list()
         # 数据增强配置参数
         self.augment_configs = None
-        self.spec_aug = dict()
+        self.spec_aug = None
         self.noises_path = None
         self.speed_rates = None
         if augment_config_path:
@@ -70,6 +70,7 @@ class CustomDataset(Dataset):
                 self.augment_configs = json.load(f)
             for augmnet_config in self.augment_configs:
                 if augmnet_config.get('type') == 'specaug':
+                    self.spec_aug = dict()
                     params = augmnet_config.get('params', {})
                     prob = augmnet_config.get('prob', 0.5)
                     defaults = {
@@ -171,7 +172,7 @@ class CustomDataset(Dataset):
                 data = self.processor(audio=sample, sampling_rate=self.sample_rate)
                 data['labels'] = [self.startoftranscript, self.nocaptions, self.endoftext]
             
-            if self.spec_aug is not None:
+            if self.spec_aug:
                 if random.random() < self.spec_aug.get('prob'):
                     data = self.spec_augmentation(data, 
                                                   num_t_mask=self.spec_aug['num_t_mask'], 

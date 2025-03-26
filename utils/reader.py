@@ -10,7 +10,7 @@ import soundfile
 import torch
 from torch.utils.data import Dataset
 from tqdm import tqdm
-
+from scipy.signal import fftconvolve
 from utils.binary import DatasetReader
 
 
@@ -63,16 +63,30 @@ class CustomDataset(Dataset):
         # 数据增强配置参数
         self.augment_configs = None
         self.spec_aug = None
-        self.noises_path = None
+
+        self.noise_files = None
+        self.rir_files = None
         self.speed_rates = None
         if augment_config_path:
             with open(augment_config_path, 'r', encoding='utf-8') as f:
                 self.augment_configs = json.load(f)
-            for augmnet_config in self.augment_configs:
-                if augmnet_config.get('type') == 'specaug':
-                    self.spec_aug = dict()
-                    params = augmnet_config.get('params', {})
-                    prob = augmnet_config.get('prob', 0.5)
+            self.spec_aug = dict()
+            for augment_config in self.augment_configs:
+                if augment_config.get('type') == 'noise':
+                    noise_dir = augment_config['params'].get('noise_dir', None)
+                    if noise_dir:
+                        self.noise_files = self._load_wav_files(noise_dir)
+                    else:
+                        print("Warning: 'noise_dir' is not specified in the configuration.")
+                if augment_config.get('type') == 'reverb':
+                    rir_dir = augment_config['params'].get('rir_dir', None)
+                    if rir_dir:
+                        self.rir_files = self._load_wav_files(rir_dir)  # 加载混响文件
+                    else:
+                        print("Warning: 'rir_dir' is not specified in the configuration.")
+                if augment_config.get('type') == 'specaug':
+                    params = augment_config.get('params', {})
+                    prob = augment_config.get('prob', 0.5)
                     defaults = {
                         'num_t_mask': 2,
                         'num_f_mask': 2,
@@ -82,6 +96,15 @@ class CustomDataset(Dataset):
                     }
                     self.spec_aug.update({key: params.get(key, default_value) for key, default_value in defaults.items()})
                     
+    # 从指定路径加载语音数据
+    def _load_wav_files(self, data_dir):
+        wave_files = list()
+        if os.path.exists(data_dir):
+            for root, _, files in os.walk(data_dir):
+                for file in files:
+                    if file.endswith('.wav'):
+                        wave_files.append(os.path.join(root, file))
+        return wave_files
 
     # 加载数据列表
     def _load_data_list(self):
@@ -172,7 +195,7 @@ class CustomDataset(Dataset):
                 data = self.processor(audio=sample, sampling_rate=self.sample_rate)
                 data['labels'] = [self.startoftranscript, self.nocaptions, self.endoftext]
             
-            if self.spec_aug:
+            if self.augment_configs and self.spec_aug:
                 if random.random() < self.spec_aug.get('prob'):
                     data = self.spec_augmentation(data, 
                                                   num_t_mask=self.spec_aug['num_t_mask'], 
@@ -236,15 +259,14 @@ class CustomDataset(Dataset):
                 sample_rate = new_sample_rate
             if config['type'] == 'noise' and random.random() < config['prob']:
                 min_snr_dB, max_snr_dB = config['params']['min_snr_dB'], config['params']['max_snr_dB']
-                if self.noises_path is None:
-                    self.noises_path = []
-                    noise_dir = config['params']['noise_dir']
-                    if os.path.exists(noise_dir):
-                        for file in os.listdir(noise_dir):
-                            self.noises_path.append(os.path.join(noise_dir, file))
-                noise_path = random.choice(self.noises_path)
-                snr_dB = random.randint(min_snr_dB, max_snr_dB)
-                sample = self.add_noise(sample, sample_rate, noise_path=noise_path, snr_dB=snr_dB)
+                if self.noise_files and len(self.noise_files) > 0:
+                    noise_file = random.choice(self.noise_files)
+                    snr_dB = random.randint(min_snr_dB, max_snr_dB)
+                    sample = self.add_noise(sample, sample_rate, noise_path=noise_file, snr_dB=snr_dB)
+            if config['type'] == 'reverb' and random.random() < config['prob']:
+                if self.rir_files and len(self.rir_files) > 0:
+                    rir_file = random.choice(self.rir_files)
+                    sample = self.add_reverb(sample, sample_rate, rir_file)
         return sample, sample_rate
 
     # 改变语速
@@ -308,6 +330,14 @@ class CustomDataset(Dataset):
             noise_sample = noise_sample[start_frame:sample.shape[0] + start_frame]
         sample += noise_sample
         return sample
+    
+    def add_reverb(self, sample, sample_rate, rir_file):
+        rir_data, _ = librosa.load(rir_file, sr=sample_rate)
+        sample_convolved = fftconvolve(sample, rir_data, mode='same')
+        # 能量归一化
+        max_rate = np.max(np.abs(sample)) / np.max(np.abs(sample_convolved))
+        sample_convolved = sample_convolved * max_rate
+        return sample_convolved
 
     @staticmethod
     def rms_db(sample):

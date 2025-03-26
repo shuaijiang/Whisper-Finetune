@@ -11,9 +11,16 @@
     "params": {
       "min_snr_dB": 10,
       "max_snr_dB": 50,
-      "noise_dir": "dataset/noise"
+      "noise_dir": "path_for/RIRS_NOISES/pointsource_noises/"
     },
-    "prob": 0.0
+    "prob": 0.5
+  },
+  {
+    "type": "reverb",
+    "params": {
+      "rir_dir": "path_for/RIRS_NOISES/simulated_rirs/"
+    },
+    "prob": 0.5
   },
   {
     "type": "speed",

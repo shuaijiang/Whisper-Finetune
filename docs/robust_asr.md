@@ -20,7 +20,7 @@
 
 ## Add-noise
 通过叠加声学环境中的各种类型的噪声，模拟不同信噪比、不同噪声的声学场景。
-数据来源：[RoomImpulseResponseandNoiseDatabase](http://openslr.org/28/)
+噪声数据来源：[RoomImpulseResponseandNoiseDatabase](http://openslr.org/28/)
 ```json
 [
   {
@@ -37,7 +37,7 @@
 
 ## Add-reverb 
 模拟房间（或者车内等空间的）混响，通过采集到的房间冲击响应，与干净语音数据做卷积实现加混响，从而提升语音识别的鲁棒性。
-数据来源：[RoomImpulseResponseandNoiseDatabase](http://openslr.org/28/)
+房间冲击响应数据来源：[RoomImpulseResponseandNoiseDatabase](http://openslr.org/28/)
 ```json
 [
   {

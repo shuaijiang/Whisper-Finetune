@@ -16,6 +16,7 @@
     "prob": 0.0
   },
 ]
+```
 
 ## Add-noise
 通过叠加声学环境中的各种类型的噪声，模拟不同信噪比、不同噪声的声学场景。
@@ -32,6 +33,7 @@
     "prob": 0.5
   },
 ]
+```
 
 ## Add-reverb 
 模拟房间（或者车内等空间的）混响，通过采集到的房间冲击响应，与干净语音数据做卷积实现加混响，从而提升语音识别的鲁棒性。
@@ -46,6 +48,7 @@
     "prob": 0.5
   },
 ]
+```
 
 ## SpecAugment
 在语音频谱上在时间、频率上分别随机做mask，从而提升语音识别的鲁棒性。
@@ -64,6 +67,7 @@
     "prob": 0.5
   },
 ]
+```
 
 Practice for building [Belle-Robust-whisper-v3-turbo-zh](https://huggingface.co/BELLE-2/Belle-Robust-whisper-large-v3-turbo-zh)
 <details>
@@ -131,4 +135,5 @@ Practice for building [Belle-Robust-whisper-v3-turbo-zh](https://huggingface.co/
     "prob": 0.5
   }
 ]
+```
 </details>

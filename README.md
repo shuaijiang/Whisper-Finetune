@@ -1,11 +1,11 @@
 # 微调Whisper语音识别模型和加速推理
 
 简体中文 | [English](./README_en.md)
-
 ![python version](https://img.shields.io/badge/python-3.8+-orange.svg)
 ![GitHub forks](https://img.shields.io/github/forks/shuaijiang/Whisper-Finetune)
 ![GitHub Repo stars](https://img.shields.io/github/stars/shuaijiang/Whisper-Finetune)
 ![GitHub](https://img.shields.io/github/license/shuaijiang/Whisper-Finetune)
+[![HuggingFace](https://img.shields.io/badge/%F0%9F%A4%97%20Hugging_Face-BELLE--Whisper-blue.svg)](https://huggingface.co/BELLE-2)
 ![支持系统](https://img.shields.io/badge/支持系统-Win/Linux/MAC-9cf)
 
 ## 前言

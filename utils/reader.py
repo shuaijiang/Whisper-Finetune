@@ -156,7 +156,10 @@ class CustomDataset(Dataset):
         # 重采样
         if self.sample_rate != sample_rate:
             sample = self.resample(sample, orig_sr=sample_rate, target_sr=self.sample_rate)
-        return sample, sample_rate, transcript, language
+        if 'id' in data_list:
+            return data_list['id'], sample, sample_rate, transcript, language
+        else:
+            return data_list['audio']['path'], sample, sample_rate, transcript, language
 
     def _load_timestamps_transcript(self, transcript: List[dict]):
         assert isinstance(transcript, list), f"transcript应该为list，当前为：{type(transcript)}"
@@ -178,7 +181,7 @@ class CustomDataset(Dataset):
     def __getitem__(self, idx):
         try:
             # 从数据列表里面获取音频数据、采样率和文本
-            sample, sample_rate, transcript, language = self._get_list_data(idx=idx)
+            audio_id, sample, sample_rate, transcript, language = self._get_list_data(idx=idx)
             # 可以为单独数据设置语言
             self.processor.tokenizer.set_prefix_tokens(language=language if language is not None else self.language)
             if len(transcript) > 0:
@@ -194,7 +197,7 @@ class CustomDataset(Dataset):
                 # 如果没有文本，则使用<|nocaptions|>标记
                 data = self.processor(audio=sample, sampling_rate=self.sample_rate)
                 data['labels'] = [self.startoftranscript, self.nocaptions, self.endoftext]
-            
+            data['id'] = audio_id
             if self.augment_configs and self.spec_aug:
                 if random.random() < self.spec_aug.get('prob'):
                     data = self.spec_augmentation(data, 

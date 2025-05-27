@@ -10,17 +10,19 @@ from torch.utils.data import DataLoader
 from tqdm import tqdm
 from transformers import WhisperForConditionalGeneration, WhisperProcessor
 
-from utils.data_utils import DataCollatorSpeechSeq2SeqWithPadding, remove_punctuation, to_simple
+from utils.data_utils import DataCollatorSpeechSeq2SeqWithPadding, remove_punctuation, to_simple, to_lower
 from utils.reader import CustomDataset
 from utils.utils import print_arguments, add_arguments
 
 parser = argparse.ArgumentParser(description=__doc__)
 add_arg = functools.partial(add_arguments, argparser=parser)
-add_arg("test_data",   type=str, default="dataset/test.json",            help="测试集的路径")
+add_arg("test_data",   type=str, default="dataset/test.json",  help="测试集的路径")
+add_arg("out_data",   type=str, default="dataset/out.txt",    help="解码输出路径")
 add_arg("model_path",  type=str, default="models/whisper-tiny-finetune", help="合并模型的路径，或者是huggingface上模型的名称")
+add_arg("num_beams", type=int, default=4,         help="number of beams")
 add_arg("batch_size",  type=int, default=16,        help="评估的batch size")
 add_arg("num_workers", type=int, default=8,         help="读取数据的线程数量")
-add_arg("language",    type=str, default="Chinese", help="设置语言，可全称也可简写，如果为None则评估的是多语言")
+add_arg("language",    type=str, default="zh", help="设置语言，可全称也可简写，如果为None则评估的是多语言")
 add_arg("remove_pun",  type=bool, default=True,     help="是否移除标点符号")
 add_arg("to_simple",   type=bool, default=True,     help="是否转为简体中文")
 add_arg("timestamps",  type=bool, default=False,    help="评估时是否使用时间戳数据")
@@ -64,6 +66,8 @@ eval_dataloader = DataLoader(test_dataset, batch_size=args.batch_size,
 # 获取评估方法
 metric = evaluate.load(f'metrics/{args.metric}.py')
 
+OUT = open(args.out_data, 'w', encoding='utf-8')
+
 # 开始评估
 for step, batch in enumerate(tqdm(eval_dataloader)):
     with torch.cuda.amp.autocast():
@@ -73,7 +77,8 @@ for step, batch in enumerate(tqdm(eval_dataloader)):
                     input_features=batch["input_features"].cuda(),
                     decoder_input_ids=batch["labels"][:, :4].cuda(),
                     forced_decoder_ids=forced_decoder_ids,
-                    max_new_tokens=255).cpu().numpy())
+                    max_new_tokens=255,
+                    num_beams=args.num_beams).cpu().numpy())
             labels = batch["labels"].cpu().numpy()
             labels = np.where(labels != -100, labels, processor.tokenizer.pad_token_id)
             # 将预测和实际的token转换为文本
@@ -87,10 +92,17 @@ for step, batch in enumerate(tqdm(eval_dataloader)):
             if args.to_simple:
                 decoded_preds = to_simple(decoded_preds)
                 decoded_labels = to_simple(decoded_labels)
+            if args.language == 'en':
+                decoded_preds = to_lower(decoded_preds)
+                decoded_labels = to_lower(decoded_labels)
+            for audio_id, pred_text in zip(batch['id'], decoded_preds):
+                OUT.write('{}\t{}\n'.format(audio_id, pred_text))
+            
             metric.add_batch(predictions=decoded_preds, references=decoded_labels)
     # 删除计算的记录
     del generated_tokens, labels, batch
     gc.collect()
+OUT.close()
 # 计算评估结果
 m = metric.compute()
 print(f"评估结果：{args.metric}={round(m, 5)}")

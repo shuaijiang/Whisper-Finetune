@@ -36,6 +36,19 @@ def to_simple(text: str or List[str]):
     else:
         raise Exception(f'不支持该类型{type(text)}')
 
+def to_lower(text: str or List[str]):
+    if isinstance(text, str):
+        text = text.lower()
+        return text
+    elif isinstance(text, list):
+        result_text = []
+        for t in text:
+            t = t.lower()
+            result_text.append(t)
+        return result_text
+    else:
+        raise Exception(f'不支持该类型{type(text)}')
+
 
 @dataclass
 class DataCollatorSpeechSeq2SeqWithPadding:

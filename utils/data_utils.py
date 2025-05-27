@@ -59,7 +59,7 @@ class DataCollatorSpeechSeq2SeqWithPadding:
         # first treat the audio inputs by simply returning torch tensors
         input_features = [{"input_features": feature["input_features"][0]} for feature in features]
         batch = self.processor.feature_extractor.pad(input_features, return_tensors="pt")
-
+        batch['id'] = [feature["id"] for feature in features]
         # get the tokenized label sequences
         label_features = [{"input_ids": feature["labels"]} for feature in features]
         # pad the labels to max length

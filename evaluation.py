@@ -10,7 +10,7 @@ from torch.utils.data import DataLoader
 from tqdm import tqdm
 from transformers import WhisperForConditionalGeneration, WhisperProcessor
 
-from utils.data_utils import DataCollatorSpeechSeq2SeqWithPadding, remove_punctuation, to_simple, to_lower
+from utils.data_utils import DataCollatorSpeechSeq2SeqWithPaddingforEval, remove_punctuation, to_simple, to_lower
 from utils.reader import CustomDataset
 from utils.utils import print_arguments, add_arguments
 
@@ -59,7 +59,7 @@ test_dataset = CustomDataset(data_list_path=args.test_data,
 print(f"测试数据：{len(test_dataset)}")
 
 # 数据padding器
-data_collator = DataCollatorSpeechSeq2SeqWithPadding(processor=processor)
+data_collator = DataCollatorSpeechSeq2SeqWithPaddingforEval(processor=processor)
 eval_dataloader = DataLoader(test_dataset, batch_size=args.batch_size,
                              num_workers=args.num_workers, collate_fn=data_collator)
 

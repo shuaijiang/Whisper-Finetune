@@ -4,7 +4,6 @@ import os
 import platform
 
 import torch
-#from peft import LoraConfig, get_peft_model, AdaLoraConfig, PeftModel, prepare_model_for_kbit_training
 from transformers import Seq2SeqTrainer, Seq2SeqTrainingArguments, WhisperForConditionalGeneration, WhisperProcessor
 
 from utils.callback import SavePeftModelCallback
@@ -83,15 +82,14 @@ model = WhisperForConditionalGeneration.from_pretrained(args.base_model,
                                                         local_files_only=args.local_files_only)
 model.config.forced_decoder_ids = None
 model.config.suppress_tokens = []
-# 量化模型
-# model = prepare_model_for_kbit_training(model)
+
 # 注册forward，否则多卡训练会失败
 model.model.encoder.conv1.register_forward_hook(make_inputs_require_grad)
 
 
 if args.base_model.endswith("/"):
     args.base_model = args.base_model[:-1]
-#output_dir = os.path.join(args.output_dir, os.path.basename(args.base_model))
+
 output_dir = args.output_dir
 # 定义训练参数
 training_args = \

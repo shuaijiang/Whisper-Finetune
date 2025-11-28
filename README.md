@@ -15,6 +15,7 @@ OpenAI在开源了号称其英文语音辨识能力已达到人类水准的Whisp
 
 ### 请先点 :star: 
 ## 🔄 最新更新
+* [2025/11/28] 支持读取parquet[Parquet supported](https://github.com/shuaijiang/Whisper-Finetune/blob/master/utils/reader.py#L213)，支持读取更大的数据集。
 * [2025/03/26] 完善了加混响功能[Add reverb](https://github.com/shuaijiang/Whisper-Finetune/blob/master/docs/robust_asr.md#Add-reverb)，提升语音识别的鲁棒性。
 * [2024/12/16] 完善了ggml模型转换功能[convert-ggml](https://github.com/shuaijiang/Whisper-Finetune/tree/master/convert-ggml)，支持whisper.cpp。
 * [2024/11/18] 新增谱增强[SpecAugment](https://github.com/shuaijiang/Whisper-Finetune/blob/master/docs/robust_asr.md#SpecAugment)功能，有效提升语音识别的鲁棒性。

@@ -12,7 +12,7 @@ from torch.utils.data import Dataset
 from tqdm import tqdm
 from scipy.signal import fftconvolve
 from utils.binary import DatasetReader
-
+import copy
 
 class CustomDataset(Dataset):
     def __init__(self,
@@ -60,41 +60,95 @@ class CustomDataset(Dataset):
         self.data_list: List[dict] = []
         # 加载数据列表
         self._load_data_list()
+
         # 数据增强配置参数
-        self.augment_configs = None
         self.spec_aug = None
 
         self.noise_files = None
         self.rir_files = None
         self.speed_rates = None
-        if augment_config_path:
-            with open(augment_config_path, 'r', encoding='utf-8') as f:
-                self.augment_configs = json.load(f)
-            self.spec_aug = dict()
-            for augment_config in self.augment_configs:
-                if augment_config.get('type') == 'noise':
-                    noise_dir = augment_config['params'].get('noise_dir', None)
-                    if noise_dir:
-                        self.noise_files = self._load_wav_files(noise_dir)
-                    else:
-                        print("Warning: 'noise_dir' is not specified in the configuration.")
-                if augment_config.get('type') == 'reverb':
-                    rir_dir = augment_config['params'].get('rir_dir', None)
-                    if rir_dir:
-                        self.rir_files = self._load_wav_files(rir_dir)  # 加载混响文件
-                    else:
-                        print("Warning: 'rir_dir' is not specified in the configuration.")
-                if augment_config.get('type') == 'specaug':
-                    params = augment_config.get('params', {})
-                    prob = augment_config.get('prob', 0.5)
-                    defaults = {
-                        'num_t_mask': 2,
-                        'num_f_mask': 2,
-                        'max_t': 50,
-                        'max_f': 10,
-                        'prob': prob,
-                    }
-                    self.spec_aug.update({key: params.get(key, default_value) for key, default_value in defaults.items()})
+        self.augment_config_map = None
+        self.load_augment_configs(augment_config_path)
+
+
+    def load_augment_configs(self, augment_config_path):
+        """
+        Load augmentation config supporting per-data_source probability overrides.
+        Assumes config format:
+        {
+          "default": [ {...}, ... ],
+          "overrides": {
+            "tts": { "noise": {"prob": 0.1}, ... },
+            ...
+          }
+        }
+        """
+        if not augment_config_path or not os.path.exists(augment_config_path):
+            self.augment_config_map = {}
+            self.spec_aug = {}
+            self.noise_files = []
+            self.rir_files = []
+            return
+
+        with open(augment_config_path, 'r', encoding='utf-8') as f:
+            config = json.load(f)
+
+        default_list = config.get("default", [])
+        overrides = config.get("overrides", {})
+
+        # --- 1. 预加载 noise 和 rir 文件（从 default 中提取路径）---
+        self.noise_files = []
+        self.rir_files = []
+        for aug in default_list:
+            if aug.get('type') == 'noise':
+                noise_dir = aug['params'].get('noise_dir')
+                if noise_dir and os.path.isdir(noise_dir):
+                    self.noise_files = self._load_wav_files(noise_dir)
+                    print(f'Loaded {len(self.noise_files)} noise files from {noise_dir}')
+                else:
+                    print(f"Warning: noise_dir not found or invalid: {noise_dir}")
+            elif aug.get('type') == 'reverb':
+                rir_dir = aug['params'].get('rir_dir')
+                if rir_dir and os.path.isdir(rir_dir):
+                    self.rir_files = self._load_wav_files(rir_dir)
+                else:
+                    print(f"Warning: rir_dir not found or invalid: {rir_dir}")
+
+        # --- 2. 解析 specaug（从 default 中提取）---
+        self.spec_aug = {}
+        for aug in default_list:
+            if aug.get('type') == 'specaug':
+                params = aug.get('params', {})
+                prob = aug.get('prob', 0.5)
+                defaults = {
+                    'num_t_mask': 2,
+                    'num_f_mask': 2,
+                    'max_t': 50,
+                    'max_f': 10,
+                    'prob': prob,
+                }
+                self.spec_aug = {k: params.get(k, v) for k, v in defaults.items()}
+                break  # only one specaug
+
+        # --- 3. 构建 per-data_source config map ---
+        self.augment_config_map = {}
+
+        # Always include 'default' as fallback
+        self.augment_config_map['default'] = copy.deepcopy(default_list)
+
+        # Build configs for each overridden source
+        for source, override_dict in overrides.items():
+            aug_list = copy.deepcopy(default_list)
+            for aug in aug_list:
+                aug_type = aug['type']
+                if aug_type in override_dict:
+                    # Only override 'prob' for now (you can extend to params later)
+                    new_prob = override_dict[aug_type].get('prob')
+                    if new_prob is not None:
+                        aug['prob'] = float(new_prob)
+            self.augment_config_map[source] = aug_list
+
+        print(f"Loaded augmentation configs for data sources: {list(self.augment_config_map.keys())}")
                     
     # 从指定路径加载语音数据
     def _load_wav_files(self, data_dir):
@@ -124,18 +178,21 @@ class CustomDataset(Dataset):
                     line = json.loads(line)
                 if not isinstance(line, dict): continue
                 # 跳过超出长度限制的音频
-                if line["duration"] < self.min_duration:
+                if float(line["duration"]) < self.min_duration:
                     continue
-                if self.max_duration != -1 and line["duration"] > self.max_duration:
+                if self.max_duration != -1 and float(line["duration"]) > self.max_duration:
                     continue
                 self.data_list.append(dict(line))
+
 
     # 从数据列表里面获取音频数据、采样率和文本
     def _get_list_data(self, idx):
         if self.data_list_path.endswith(".header"):
             data_list = self.dataset_reader.get_data(self.data_list[idx])
         else:
+            #line_idx = self.valid_line_indices[index]
             data_list = self.data_list[idx]
+            #with open(self.data_list_path, 'r', encoding='utf-8') as f:
         # 分割音频路径和标签
         audio_file = data_list["audio"]['path']
         transcript = data_list["sentences"] if self.timestamps else data_list["sentence"]
@@ -150,9 +207,11 @@ class CustomDataset(Dataset):
         # 转成单通道
         if self.mono:
             sample = librosa.to_mono(sample)
+        
+        data_source = data_list.get("data_source", "default")
         # 数据增强
-        if self.augment_configs:
-            sample, sample_rate = self.augment(sample, sample_rate)
+        if self.augment_config_map:
+            sample, sample_rate = self.augment(sample, sample_rate, data_source)
         # 重采样
         if self.sample_rate != sample_rate:
             sample = self.resample(sample, orig_sr=sample_rate, target_sr=self.sample_rate)
@@ -198,7 +257,7 @@ class CustomDataset(Dataset):
                 data = self.processor(audio=sample, sampling_rate=self.sample_rate)
                 data['labels'] = [self.startoftranscript, self.nocaptions, self.endoftext]
             data['id'] = audio_id
-            if self.augment_configs and self.spec_aug:
+            if self.augment_config_map and self.spec_aug:
                 if random.random() < self.spec_aug.get('prob'):
                     data = self.spec_augmentation(data, 
                                                   num_t_mask=self.spec_aug['num_t_mask'], 
@@ -238,8 +297,9 @@ class CustomDataset(Dataset):
         return sample, sample_rate
 
     # 数据增强
-    def augment(self, sample, sample_rate):
-        for config in self.augment_configs:
+    def augment(self, sample, sample_rate, data_source="default"):
+        configs = self.augment_config_map.get(data_source, self.augment_config_map["default"])
+        for config in configs:
             if config['type'] == 'speed' and random.random() < config['prob']:
                 if self.speed_rates is None:
                     min_speed_rate, max_speed_rate, num_rates = config['params']['min_speed_rate'], \
@@ -260,7 +320,7 @@ class CustomDataset(Dataset):
                 new_sample_rate = np.random.choice(new_sample_rates)
                 sample = self.resample(sample, orig_sr=sample_rate, target_sr=new_sample_rate)
                 sample_rate = new_sample_rate
-            if config['type'] == 'noise' and random.random() < config['prob']:
+            if config['type'] == 'noise' and random.random() < config['prob']: 
                 min_snr_dB, max_snr_dB = config['params']['min_snr_dB'], config['params']['max_snr_dB']
                 if self.noise_files and len(self.noise_files) > 0:
                     noise_file = random.choice(self.noise_files)
@@ -326,8 +386,12 @@ class CustomDataset(Dataset):
         noise_sample *= 10. ** (noise_gain_db / 20.)
         # 固定噪声长度
         if noise_sample.shape[0] < sample.shape[0]:
-            diff_duration = sample.shape[0] - noise_sample.shape[0]
-            noise_sample = np.pad(noise_sample, (0, diff_duration), 'wrap')
+            #diff_duration = sample.shape[0] - noise_sample.shape[0]
+            #noise_sample = np.pad(noise_sample, (0, diff_duration), 'wrap')
+            # 重复噪声直到足够长
+            repeat_times = int(np.ceil(sample.shape[0] / noise_sample.shape[0]))
+            noise_sample = np.tile(noise_sample, repeat_times)
+            noise_sample = noise_sample[:sample.shape[0]]
         elif noise_sample.shape[0] > sample.shape[0]:
             start_frame = random.randint(0, noise_sample.shape[0] - sample.shape[0])
             noise_sample = noise_sample[start_frame:sample.shape[0] + start_frame]

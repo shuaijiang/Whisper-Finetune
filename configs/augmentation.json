@@ -1,60 +1,82 @@
-[
-  {
-    "type": "resample",
-    "params": {
-      "new_sample_rates": [8000, 32000, 44100]
+{
+  "default": [
+    {
+      "type": "resample",
+      "params": {
+        "new_sample_rates": [8000, 32000, 44100]
+      },
+      "prob": 0.0
     },
-    "prob": 0.0
-  },
-  {
-    "type": "noise",
-    "params": {
-      "min_snr_dB": 10,
-      "max_snr_dB": 50,
-      "noise_dir": "path_for/RIRS_NOISES/pointsource_noises/"
+    {
+      "type": "noise",
+      "params": {
+        "min_snr_dB": 10,
+        "max_snr_dB": 20,
+        "noise_dir": "/mnt/nas3/zhaoshuaijiang/dataset/noise/"
+      },
+      "prob": 0.5
     },
-    "prob": 0.5
-  },
-  {
-    "type": "reverb",
-    "params": {
-      "rir_dir": "path_for/RIRS_NOISES/simulated_rirs/"
+    {
+      "type": "reverb",
+      "params": {
+        "rir_dir": "/mnt/nas3/zhaoshuaijiang/dataset/RIRS_NOISES/simulated_rirs/"
+      },
+      "prob": 0.5
     },
-    "prob": 0.5
-  },
-  {
-    "type": "speed",
-    "params": {
-      "min_speed_rate": 0.9,
-      "max_speed_rate": 1.1,
-      "num_rates": 3
+    {
+      "type": "speed",
+      "params": {
+        "min_speed_rate": 0.9,
+        "max_speed_rate": 1.1,
+        "num_rates": 3
+      },
+      "prob": 0.5
     },
-    "prob": 0.0
-  },
-  {
-    "type": "shift",
-    "params": {
-      "min_shift_ms": -5,
-      "max_shift_ms": 5
+    {
+      "type": "shift",
+      "params": {
+        "min_shift_ms": -5,
+        "max_shift_ms": 5
+      },
+      "prob": 0.0
     },
-    "prob": 0.0
-  },
-  {
-    "type": "volume",
-    "params": {
-      "min_gain_dBFS": -15,
-      "max_gain_dBFS": 15
+    {
+      "type": "volume",
+      "params": {
+        "min_gain_dBFS": -15,
+        "max_gain_dBFS": 15
+      },
+      "prob": 0.0
     },
-    "prob": 0.0
-  },
-  {
-    "type": "specaug",
-    "params": {
-      "num_t_mask": 2,
-      "num_f_mask": 2,
-      "max_t": 50,
-      "max_f": 10
+    {
+      "type": "specaug",
+      "params": {
+        "num_t_mask": 2,
+        "num_f_mask": 2,
+        "max_t": 50,
+        "max_f": 10
+      },
+      "prob": 0.0
+    }
+  ],
+  "overrides": {
+    "tts": {
+      "noise": {"prob": 0.2, "params":{"min_snr_dB": 5, "max_snr_dB":20}},
+      "reverb": {"prob": 0.2}
     },
-    "prob": 0.5
+    "record": {
+      "noise": {"prob": 0.1},
+      "reverb": {"prob": 0.1}
+    },
+    "online": {
+      "speed": {"prob": 0.1},
+      "noise": {"prob": 0.1},
+      "reverb": {"prob": 0.1}
+    },
+    "web":{
+      "speed": {"prob": 0.3},
+      "noise": {"prob": 0.3},
+      "reverb": {"prob": 0.3} 
+    }
   }
-]
+}

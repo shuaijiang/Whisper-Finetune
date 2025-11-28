@@ -9,6 +9,8 @@ import numpy as np
 import soundfile
 import torch
 from torch.utils.data import Dataset
+from datasets import load_dataset
+import pyarrow.parquet as pq
 from tqdm import tqdm
 from scipy.signal import fftconvolve
 from utils.binary import DatasetReader
@@ -24,6 +26,7 @@ class CustomDataset(Dataset):
                  sample_rate=16000,
                  min_duration=0.5,
                  max_duration=30,
+                 streaming=False,
                  augment_config_path=None):
         """
         Args:
@@ -49,6 +52,7 @@ class CustomDataset(Dataset):
         self.timestamps = timestamps
         self.min_duration = min_duration
         self.max_duration = max_duration
+        self.streaming = streaming
         self.vocab = self.processor.tokenizer.get_vocab()
         self.timestamp_begin = self.vocab['<|notimestamps|>'] + 1
         self.startoftranscript = self.vocab['<|startoftranscript|>']
@@ -168,6 +172,18 @@ class CustomDataset(Dataset):
                                                 min_duration=self.min_duration,
                                                 max_duration=self.max_duration)
             self.data_list = self.dataset_reader.get_keys()
+        elif self.data_list_path.endswith(".parquet"):
+            self.parquet_sample_num = self.get_parquet_row_count(self.data_list_path)
+            # 加载 Parquet（流式 or 全量）
+            self.data_list = load_dataset(
+                "parquet",
+                data_files=self.data_list_path,
+                split="train",
+                streaming=self.streaming,
+                trust_remote_code=False
+            )
+            if not self.streaming:
+                self.data_list = self.data_list.with_format("torch")
         else:
             # 获取数据列表
             with open(self.data_list_path, 'r', encoding='utf-8') as f:
@@ -183,16 +199,46 @@ class CustomDataset(Dataset):
                 if self.max_duration != -1 and float(line["duration"]) > self.max_duration:
                     continue
                 self.data_list.append(dict(line))
+    
+    def get_parquet_row_count(self, parquet_path):
+        # 支持单个文件或文件列表
+        if isinstance(parquet_path, str):
+            parquet_path = [parquet_path]
+        total_rows = 0
+        for path in parquet_path:
+            metadata = pq.read_metadata(path)
+            total_rows += metadata.num_rows
+        return total_rows
+    
+    def _get_list_data_parquet(self, idx):
+        item = self.data_list[idx]
+        audio_file = item["audio_path"]
+        # 单通道
+        sample, sample_rate = soundfile.read(audio_file, dtype='float32')
+        sample = sample.T
+        if self.mono:
+            audio_array = librosa.to_mono(sample)
 
+        utt_id = item.get("utt_id", item["audio_path"])
+        transcript = item["sentences"] if self.timestamps else item["sentence"]
+        language = item.get("language") or self.language
+        data_source = item.get("data_source", "default")
+        
+        # 重采样
+        if self.sample_rate != sample_rate:
+            sample = self.resample(sample, orig_sr=sample_rate, target_sr=self.sample_rate)
+        # 数据增强
+        if self.augment_config_map:
+            sample, sample_rate = self.augment(sample, sample_rate, data_source)
+
+        return utt_id, sample, sample_rate, transcript, language
 
     # 从数据列表里面获取音频数据、采样率和文本
     def _get_list_data(self, idx):
         if self.data_list_path.endswith(".header"):
             data_list = self.dataset_reader.get_data(self.data_list[idx])
         else:
-            #line_idx = self.valid_line_indices[index]
             data_list = self.data_list[idx]
-            #with open(self.data_list_path, 'r', encoding='utf-8') as f:
         # 分割音频路径和标签
         audio_file = data_list["audio"]['path']
         transcript = data_list["sentences"] if self.timestamps else data_list["sentence"]
@@ -215,8 +261,8 @@ class CustomDataset(Dataset):
         # 重采样
         if self.sample_rate != sample_rate:
             sample = self.resample(sample, orig_sr=sample_rate, target_sr=self.sample_rate)
-        if 'id' in data_list:
-            return data_list['id'], sample, sample_rate, transcript, language
+        if 'utt_id' in data_list:
+            return data_list['utt_id'], sample, sample_rate, transcript, language
         else:
             return data_list['audio']['path'], sample, sample_rate, transcript, language
 
@@ -240,7 +286,11 @@ class CustomDataset(Dataset):
     def __getitem__(self, idx):
         try:
             # 从数据列表里面获取音频数据、采样率和文本
-            audio_id, sample, sample_rate, transcript, language = self._get_list_data(idx=idx)
+            if self.data_list_path.endswith(".parquet"):
+                audio_id, sample, sample_rate, transcript, language = self._get_list_data_parquet(idx=idx)
+            else:
+                audio_id, sample, sample_rate, transcript, language = self._get_list_data(idx=idx)
+            
             # 可以为单独数据设置语言
             self.processor.tokenizer.set_prefix_tokens(language=language if language is not None else self.language)
             if len(transcript) > 0:
@@ -270,6 +320,8 @@ class CustomDataset(Dataset):
             return self.__getitem__(random.randint(0, self.__len__() - 1))
 
     def __len__(self):
+        if self.data_list_path.endswith("parquet") and self.streaming:
+            return self.parquet_sample_num
         return len(self.data_list)
 
     # 分割读取音频
